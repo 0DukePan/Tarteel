@@ -68,19 +68,21 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
 
 export const authorize = (...roles : string[]) => {
-    return (req : Request , res : Response , next : NextFunction) => {
+    return (req : Request , res : Response , next : NextFunction) : void => {
         if(!req.admin){
-            return res.status(401).json({
+             res.status(401).json({
                 success : false,
                 message : 'Access denied , Authentication required'
             })
+            return  //add return to stop execution
         }
 
         if(!roles.includes(req.admin.role)){
-            return res.status(403).json({
+             res.status(403).json({
                 success : false,
                 message : 'Access denied , Insufficient permissions'    
             })
+            return 
         }
         next()
     }

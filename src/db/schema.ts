@@ -22,7 +22,7 @@ export const teachers = pgTable('teachers' , {
     name : varchar('name' , {length : 200}).notNull(),
     email : varchar('email' , {length : 255}).notNull().unique(),
     phone : varchar('phone' , {length : 20}).notNull(),
-    specialization : varchar('specialization' , {length : 255}).notNull(),
+    specialization : text('specialization'),
     createdAt : timestamp('created_at').defaultNow().notNull(),
     updatedAt : timestamp('updated_at').defaultNow().notNull(),
 })
