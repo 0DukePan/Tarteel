@@ -32,17 +32,18 @@
   
       "baseUrl": "./src",
       "paths": {
-        "@/": [""],
-        "@/config/": ["config/"],
-        "@/controllers/": ["controllers/"],
-        "@/middleware/": ["middleware/"],
-        "@/services/": ["services/"],
-        "@/types/": ["types/"],
-        "@/utils/": ["utils/"],
-        "@/db/": ["db/"],
-        "@/routes/": ["routes/"],
-        "@/scripts/": ["scripts/"]
+        "@/*": ["*"],
+        "@/config/*": ["config/*"],
+        "@/controllers/*": ["controllers/*"],
+        "@/middleware/*": ["middleware/*"],
+        "@/services/*": ["services/*"],
+        "@/types/*": ["types/*"],
+        "@/utils/*": ["utils/*"],
+        "@/db/*": ["db/*"],
+        "@/routes/*": ["routes/*"],
+        "@/scripts/*": ["scripts/*"]
       }
+
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "dist", "logs", "*.test.ts", "*.spec.ts"],
