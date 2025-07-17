@@ -8,7 +8,7 @@ import dotenv from "dotenv"
 import { database } from "./config/database"
 import { logger } from "./config/logger"
 import { errorHanlder, notFound } from "./middleware/errorHandler"
-
+import { Request, Response, NextFunction } from "express"
 // Import routes
 import registrationRoutes from "./routes/registration.routes"
 import classRoutes from "./routes/class.routes"
@@ -51,7 +51,8 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 app.use(compression())
 
 // Request logging
-app.use((req, res, next) => {
+
+app.use((req: Request, res: Response, next: NextFunction) => {
   logger.info(`${req.method} ${req.path} - ${req.ip}`)
   next()
 })
