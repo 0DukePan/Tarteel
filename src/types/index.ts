@@ -85,7 +85,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     }
 }
 export interface RegistrationWithDetails {
-    id: string
+    student : {id: string
     parentId: string
     firstName: string
     lastName: string
@@ -95,6 +95,7 @@ export interface RegistrationWithDetails {
     registrationStatus: string
     createdAt: Date
     updatedAt: Date
+    }
     parent: {
       id: string
       fatherFirstName: string

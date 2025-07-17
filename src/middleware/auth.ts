@@ -1,5 +1,5 @@
 import { NextFunction  , Request, Response} from "express";
-import { logger } from "config/logger";
+import { logger } from "../config/logger";
 import jwt from 'jsonwebtoken'
 import { JWTPayload } from "../types";
 import { database } from "config/database";
@@ -15,56 +15,46 @@ declare global {
     }
 }
 
-export const authenticate = async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
-    try {
-      const token = req.header("Authorization")?.replace("Bearer ", "")
-  
-      if (!token) {
-         res.status(401).json({
-          success: false,
-          error: "Access denied. No token provided.",
-        })
-         return
-      }
-  
-      const jwtSecret = process.env.JWT_SECRET
-      if (!jwtSecret) {
-        logger.error("JWT_SECRET is not defined")
-         res.status(500).json({
-          success: false,
-          error: "Server configuration error",
-        })
-         return 
-      }
-  
-      const decoded = jwt.verify(token, jwtSecret) as JWTPayload
-      const db = database.getDb()
-  
-      const adminResult = await db.select().from(admins).where(eq(admins.id, decoded.adminId)).limit(1)
-  
-      const admin = adminResult[0]
-      if (!admin || !admin.isActive) {
-         res.status(401).json({
-          success: false,
-          error: "Invalid token or admin account is inactive",
-        })
-        return 
-      }
-  
-      // Remove password from admin object
-      const { password, ...adminWithoutPassword } = admin
-      req.admin = adminWithoutPassword
-      next()
-    } catch (error) {
-      logger.error("Authentication error:", error)
-      res.status(401).json({
-        success: false,
-        error: "Invalid token",
-      })
-      return 
+export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    console.log(`authenticate: Processing token for request to ${req.path}`);
+
+    if (!token) {
+      console.error("authenticate: No token provided");
+      res.status(401).json({ success: false, error: "Access denied. No token provided." });
+      return;
     }
+
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error("authenticate: JWT_SECRET is not defined");
+      res.status(500).json({ success: false, error: "Server configuration error" });
+      return;
+    }
+
+    const decoded = jwt.verify(token, jwtSecret) as JWTPayload;
+    console.log(`authenticate: Token decoded for admin ID: ${decoded.adminId}`);
+
+    const db = database.getDb();
+    const adminResult = await db.select().from(admins).where(eq(admins.id, decoded.adminId)).limit(1);
+    const admin = adminResult[0];
+
+    if (!admin || !admin.isActive) {
+      console.error(`authenticate: Invalid token or inactive admin for ID: ${decoded.adminId}`);
+      res.status(401).json({ success: false, error: "Invalid token or admin account is inactive" });
+      return;
+    }
+
+    const { password, ...adminWithoutPassword } = admin;
+    req.admin = adminWithoutPassword;
+    next();
+  } catch (error) {
+    console.error(`authenticate: Authentication error for ${req.path}:`, error);
+    res.status(401).json({ success: false, error: "Invalid token" });
+    return;
   }
-  
+};
 
 
 export const authorize = (...roles : string[]) => {

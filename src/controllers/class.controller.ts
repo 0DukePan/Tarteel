@@ -1,6 +1,7 @@
 import { ClassService } from "services/class.service"
 import { asyncHandler } from "../middleware/errorHandler"
 import { Request , Response } from "express"
+
 export const getAvailableClasses = asyncHandler(async (req : Request , res : Response) => {
     const classService = new ClassService()
     const age = req.query.age ? Number.parseInt(req.query.age as string) : undefined
