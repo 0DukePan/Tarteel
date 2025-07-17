@@ -2,7 +2,7 @@ import { NextFunction  , Request, Response} from "express";
 import { logger } from "../config/logger";
 import jwt from 'jsonwebtoken'
 import { JWTPayload } from "../types";
-import { database } from "config/database";
+import { database } from '@/config/database' 
 import { eq } from "drizzle-orm";
 import { admins } from "db/schema";
 
