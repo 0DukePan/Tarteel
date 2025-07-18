@@ -25,9 +25,20 @@ app.set("trust proxy", 1)
 app.use(helmet())
 
 app.use(cors({
-  origin: 'https://tarteel-front-gipv.vercel.app',
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://tarteel-front-gipv.vercel.app',
+      'http://localhost:3000', // optional for dev
+    ]
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   credentials: true,
 }))
+
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
