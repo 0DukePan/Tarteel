@@ -29,7 +29,7 @@ app.use(cors({
     const allowedOrigins = [
       'https://tarteel-front-gipv.vercel.app',
       'http://localhost:3000',
-    ];
+    ]
     if (!origin) {
       // allow non-browser tools like curl/postman
       return callback(null, true);
@@ -37,8 +37,7 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
-      console.warn('Blocked CORS request from:', origin);
-      return callback(null, false); // Just block silently
+      return callback(null, false); 
     }
   },
   credentials: true,
