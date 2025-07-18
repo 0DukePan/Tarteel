@@ -49,11 +49,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next()
 })
 
-app.get("/", (req, res) => {
+app.get("/", (req : Request, res : Response) => {
   res.send("Quran School API - Online")
 })
 
-app.get("/health", (req, res) => {
+app.get("/health", (req : Request, res : Response) => {
   res.json({
     success: true,
     message: "Server is running",
