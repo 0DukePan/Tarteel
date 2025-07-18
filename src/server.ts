@@ -30,15 +30,20 @@ app.use(cors({
       'https://tarteel-front-gipv.vercel.app',
       'http://localhost:3000',
     ];
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
+    if (!origin) {
+      // allow non-browser tools like curl/postman
+      return callback(null, true);
+    }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     } else {
-      console.warn(`Blocked CORS request from: ${origin}`);
-      callback(null, false); 
+      console.warn('Blocked CORS request from:', origin);
+      return callback(null, false); // Just block silently
     }
   },
   credentials: true,
 }));
+
 
 
 const limiter = rateLimit({
