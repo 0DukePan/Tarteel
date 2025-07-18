@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 
 import { database } from "./config/database";
 import { logger } from "./config/logger";
-import { errorHandler, notFound } from "./middleware/errorHandler";
+import {  notFound } from "./middleware/errorHandler";
 
 // Routes
 import registrationRoutes from "./routes/registration.routes";
@@ -89,7 +89,6 @@ app.use("/api/teachers", teacherRoutes);
 
 app.use(notFound);
 
-app.use(errorHandler);
 
 const startServer = async () => {
   try {
