@@ -14,15 +14,14 @@ export class RegistrationService {
     try {
       const db = this.getDb();
       const { parent: parentData, student: studentData } = registrationData;
-
+  
       // Check if classId is provided
       if (!studentData.classId) {
         throw new AppError("Class ID is required", 400);
       }
-
+  
       // Check if class exists and has available spots
       const selectedClassResult = await db.select().from(classes).where(eq(classes.id, studentData.classId)).limit(1);
-
       const selectedClass = selectedClassResult[0];
       if (!selectedClass) {
         throw new AppError("Selected class is not found", 404);
@@ -30,7 +29,7 @@ export class RegistrationService {
       if (selectedClass.currentStudents >= selectedClass.maxStudents) {
         throw new AppError("Selected class is full", 400);
       }
-
+  
       // Calculate age
       const today = new Date();
       const birthDate = new Date(studentData.dateOfBirth);
@@ -39,12 +38,12 @@ export class RegistrationService {
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
         age--;
       }
-
+  
       // Check if student age is appropriate for the class
       if (age < selectedClass.ageMin || age > selectedClass.ageMax) {
         throw new AppError(`Student age (${age}) is not appropriate for the class`, 400);
       }
-
+  
       // Check if parent already exists
       const existingParentResult = await db
         .select()
@@ -52,7 +51,7 @@ export class RegistrationService {
         .where(eq(parents.fatherEmail, parentData.fatherEmail))
         .limit(1);
       let parentId: string;
-
+  
       if (existingParentResult.length > 0) {
         // Update existing parent
         parentId = existingParentResult[0].id;
@@ -68,7 +67,25 @@ export class RegistrationService {
         const newParentResult = await db.insert(parents).values(parentData).returning({ id: parents.id });
         parentId = newParentResult[0].id;
       }
-
+  
+      // ✅ Check if this student is already registered by this parent
+      const existingStudent = await db
+        .select()
+        .from(students)
+        .where(
+          and(
+            eq(students.parentId, parentId),
+            eq(students.firstName, studentData.firstName),
+            eq(students.lastName, studentData.lastName),
+            eq(students.dateOfBirth, new Date(studentData.dateOfBirth).toISOString().split("T")[0])
+          )
+        )
+        .limit(1);
+  
+      if (existingStudent.length > 0) {
+        throw new AppError("This child is already registered by the parent", 400);
+      }
+  
       // Create student
       const newStudentResult = await db
         .insert(students)
@@ -80,7 +97,7 @@ export class RegistrationService {
           dateOfBirth: new Date(studentData.dateOfBirth).toISOString().split("T")[0],
         })
         .returning({ id: students.id });
-
+  
       const studentId = newStudentResult[0].id;
       logger.info(`New registration created - Student: ${studentId}, Parent: ${parentId}`);
       return { parentId, studentId };
@@ -89,6 +106,7 @@ export class RegistrationService {
       throw error;
     }
   }
+  
 
   async getRegistrations(options: QueryOptions): Promise<PaginatedResponse<RegistrationWithDetails>> {
     try {
