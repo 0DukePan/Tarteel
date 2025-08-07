@@ -9,51 +9,56 @@ import { database } from "./config/database";
 import { logger } from "./config/logger";
 import { notFound } from "./middleware/errorHandler";
 
-// Routes
+// Route imports
 import registrationRoutes from "./routes/registration.routes";
 import classRoutes from "./routes/class.routes";
 import teacherRoutes from "./routes/teacher.routes";
 import authRoutes from "./routes/auth.routes";
 
+// Load .env
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.set("trust proxy", 1);
+
+// ---------------------- 🔐 Security Middleware ----------------------
 app.use(helmet());
+app.use(compression());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ✅ Define CORS options once and use them everywhere
-const corsOptions: cors.CorsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'https://tarteel-front-gipv.vercel.app',
-      'http://localhost:3000',
-    ];
+// ---------------------- 🌍 CORS Setup ----------------------
+const allowedOrigins = [
+  "https://tarteel-app.vercel.app",
+  "https://tarteel-2jctxuwd6-0dukepans-projects.vercel.app",
+  "https://tarteel-app-git-main-0dukepans-projects.vercel.app",
+  "http://localhost:3000",
+];
 
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      logger.warn(`CORS blocked request from origin: ${origin}`);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Authorization', 'Content-Type'],
-};
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        logger.warn(`CORS blocked request from origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Authorization", "Content-Type"],
+  })
+);
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // ✅ Ensure preflight uses same rules
+// Preflight support
+app.options("*", cors());
 
-// ✅ Optional: Set headers manually (especially for credentials support)
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
-});
-
+// ---------------------- 🚫 Rate Limiting ----------------------
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   message: {
     success: false,
@@ -62,15 +67,13 @@ const limiter = rateLimit({
 });
 app.use("/api/", limiter);
 
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-app.use(compression());
-
+// ---------------------- 📋 Logging ----------------------
 app.use((req: Request, res: Response, next: NextFunction) => {
   logger.info(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
 
+// ---------------------- 🌐 Routes ----------------------
 app.get("/", (req: Request, res: Response) => {
   res.send("Quran School API - Online");
 });
@@ -89,10 +92,10 @@ app.use("/api/registrations", registrationRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/teachers", teacherRoutes);
 
-// Catch 404s
+// ---------------------- ❌ Not Found ----------------------
 app.use(notFound);
 
-// Start server
+// ---------------------- 🚀 Start Server ----------------------
 const startServer = async () => {
   try {
     await database.connect();
@@ -106,7 +109,7 @@ const startServer = async () => {
   }
 };
 
-// Graceful shutdown handlers
+// ---------------------- 🧯 Graceful Shutdown ----------------------
 process.on("SIGTERM", async () => {
   logger.info("SIGTERM received, shutting down gracefully");
   await database.disconnect();
