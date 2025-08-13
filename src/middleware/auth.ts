@@ -18,7 +18,7 @@ declare global {
 export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
-    console.log(`authenticate: Processing token for request to ${req.path}`);
+    (`authenticate: Processing token for request to ${req.path}`);
 
     if (!token) {
       console.error("authenticate: No token provided");
@@ -34,7 +34,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     }
 
     const decoded = jwt.verify(token, jwtSecret) as JWTPayload;
-    console.log(`authenticate: Token decoded for admin ID: ${decoded.adminId}`);
+    (`authenticate: Token decoded for admin ID: ${decoded.adminId}`);
 
     const db = database.getDb();
     const adminResult = await db.select().from(admins).where(eq(admins.id, decoded.adminId)).limit(1);

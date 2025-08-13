@@ -18,7 +18,6 @@ class Database {
 
   public async connect(): Promise<void> {
     if (this.isConnected && this.db) {
-      console.log('Database is already connected')
       return
     }
 
@@ -34,7 +33,6 @@ class Database {
 
       await sql`SELECT 1`
       this.isConnected = true
-      console.log('Neon connected successfully')
     } catch (error) {
       console.error('Failed to connect to Neon:', error)
       throw error
@@ -56,7 +54,6 @@ class Database {
     // Neon serverless doesn’t require disconnection
     this.isConnected = false
     this.db = null
-    console.log('Disconnected from Neon')
   }
 }
 

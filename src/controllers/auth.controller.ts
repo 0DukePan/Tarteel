@@ -71,7 +71,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 })
 
 export const getProfile = asyncHandler(async (req: Request, res: Response) => {
-  console.log(`getProfile called for admin ID: ${req.admin.id}`);
+  (`getProfile called for admin ID: ${req.admin.id}`);
   const db = database.getDb();
   const admin = await db.select().from(admins).where(eq(admins.id, req.admin.id)).limit(1);
 
