@@ -33,6 +33,11 @@ const allowedOrigins = [
   "https://tarteel-2jctxuwd6-0dukepans-projects.vercel.app",
   "https://tarteel-app-git-main-0dukepans-projects.vercel.app",
   "http://localhost:3000",
+  "https://tarteel-front-gipv.vercel.app", 
+  "https://tarteel-p1v1snezv-0dukepans-projects.vercel.app", 
+  "https://tarteel-48z64xhfq-0dukepans-projects.vercel.app", 
+  "https://tarteel-6hg70iuzm-0dukepans-projects.vercel.app", 
+  "https://tarteel-p4pyyl12v-0dukepans-projects.vercel.app", 
 ];
 
 app.use(
