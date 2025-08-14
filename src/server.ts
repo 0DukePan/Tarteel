@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 
 import { database } from "./config/database";
 import { logger } from "./config/logger";
-import { notFound } from "./middleware/errorHandler";
+import { notFound, errorHandler } from "./middleware/errorHandler"; 
 
 // Route imports
 import registrationRoutes from "./routes/registration.routes";
@@ -23,13 +23,11 @@ const PORT = process.env.PORT || 5000;
 
 app.set("trust proxy", 1);
 
-// ---------------------- 🔐 Security Middleware ----------------------
 app.use(helmet());
 app.use(compression());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ---------------------- 🌍 CORS Setup ----------------------
 const allowedOrigins = [
   "https://tarteel-app.vercel.app",
   "https://tarteel-2jctxuwd6-0dukepans-projects.vercel.app",
@@ -56,7 +54,6 @@ app.use(
 // Preflight support
 app.options("*", cors());
 
-// ---------------------- 🚫 Rate Limiting ----------------------
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -67,13 +64,11 @@ const limiter = rateLimit({
 });
 app.use("/api/", limiter);
 
-// ---------------------- 📋 Logging ----------------------
 app.use((req: Request, res: Response, next: NextFunction) => {
   logger.info(`${req.method} ${req.path} - ${req.ip}`);
   next();
 });
 
-// ---------------------- 🌐 Routes ----------------------
 app.get("/", (req: Request, res: Response) => {
   res.send("Quran School API - Online");
 });
@@ -92,10 +87,10 @@ app.use("/api/registrations", registrationRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/teachers", teacherRoutes);
 
-// ---------------------- ❌ Not Found ----------------------
 app.use(notFound);
 
-// ---------------------- 🚀 Start Server ----------------------
+app.use(errorHandler); 
+
 const startServer = async () => {
   try {
     await database.connect();
@@ -109,7 +104,6 @@ const startServer = async () => {
   }
 };
 
-// ---------------------- 🧯 Graceful Shutdown ----------------------
 process.on("SIGTERM", async () => {
   logger.info("SIGTERM received, shutting down gracefully");
   await database.disconnect();
