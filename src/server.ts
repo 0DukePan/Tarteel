@@ -31,8 +31,8 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 const allowedOrigins = [
       "http://localhost:3000",
       "https://tarteel-app.vercel.app",
-      "https://tarteel-app-git-main-0dukepans-projects.vercel.app",
-      "https://tarteel-94r30g2np-0dukepans-projects.vercel.app"
+      "https://tarteel-front-git-main-0dukepans-projects.vercel.app",
+      "https://tarteel-front-kvjc5cplf-0dukepans-projects.vercel.app"
 ];
 
 const vercelPreviewRegex = /^https:\/\/tarteel-[a-z0-9]+-0dukepans-projects\.vercel\.app$/;
