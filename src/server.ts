@@ -27,16 +27,12 @@ app.use(helmet());
 app.use(compression());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
 const allowedOrigins = [
-      "http://localhost:3000",
-      "https://tarteel-front.vercel.app",
-      "tarteel-front-git-main-0dukepans-projects.vercel.app",
-      "https://tarteel-front-g5yd09lhs-0dukepans-projects.vercel.app"
+  "http://localhost:3000",
+  "https://tarteel-front.vercel.app",
+  "https://tarteel-front-git-main-0dukepans-projects.vercel.app",
 ];
-
-const vercelPreviewRegex = /^https:\/\/tarteel-[a-z0-9]+-0dukepans-projects\.vercel\.app$/;
-
+const vercelPreviewRegex = /^https:\/\/tarteel-front-[a-z0-9]+-0dukepans-projects\.vercel\.app$/;
 app.use(
   cors({
     origin: function (origin, callback) {
