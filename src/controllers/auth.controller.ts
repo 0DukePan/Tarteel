@@ -2,21 +2,28 @@ import { eq } from "drizzle-orm"
 import { database } from "../config/database"
 import { admins } from "../db/schema"
 import { Request, Response } from "express"
-import bcrypt from 'bcryptjs'
-import  jwt from 'jsonwebtoken';
-import type {  JWTPayload } from "../types"
-import dotenv from 'dotenv'
+import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv"
 import { AppError, asyncHandler } from "middleware/errorHandler"
 import { logger } from "config/logger"
+import type { JWTPayload } from "../types"
+
 dotenv.config()
 
+// ------------------ LOGIN ------------------
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const db = database.getDb()
   const { email, password } = req.body
 
   // Find admin
-  const adminResult = await db.select().from(admins).where(eq(admins.email, email)).limit(1)
+  const adminResult = await db
+    .select()
+    .from(admins)
+    .where(eq(admins.email, email))
+    .limit(1)
   const admin = adminResult[0]
+
   if (!admin || !admin.isActive) {
     throw new AppError("Invalid email or password", 401)
   }
@@ -41,18 +48,18 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const jwtOptions: jwt.SignOptions = {
-    expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as jwt.SignOptions['expiresIn'],
+    expiresIn: (process.env.JWT_EXPIRES_IN || "7d") as jwt.SignOptions["expiresIn"],
   }
 
   const token = jwt.sign(payload, jwtSecret, jwtOptions)
 
   // Set cookie
-  res.cookie('auth_token', token, {
-    httpOnly: true, // Prevents client-side JavaScript access
-    secure: process.env.NODE_ENV === 'production', // Use Secure in production (HTTPS only)
-    sameSite: 'strict', // Prevents CSRF
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds, matching JWT expiresIn
-    path: '/', // Cookie available site-wide
+  res.cookie("auth_token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
   })
 
   // Remove password from response
@@ -65,30 +72,35 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     message: "Login successful",
     data: {
       admin: adminResponse,
-      token, // Still return token for immediate use
+      token,
     },
   })
 })
 
+// ------------------ GET PROFILE ------------------
 export const getProfile = asyncHandler(async (req: Request, res: Response) => {
-  (`getProfile called for admin ID: ${req.admin.id}`);
-  const db = database.getDb();
-  const admin = await db.select().from(admins).where(eq(admins.id, req.admin.id)).limit(1);
+  const db = database.getDb()
+  const admin = await db
+    .select()
+    .from(admins)
+    .where(eq(admins.id, req.admin.id))
+    .limit(1)
 
   if (admin.length === 0) {
-    console.error(`getProfile: Admin not found for ID: ${req.admin.id}`);
-    throw new AppError("Admin not found", 404);
+    throw new AppError("Admin not found", 404)
   }
 
-  const { password, ...adminWithoutPassword } = admin[0];
+  const { password, ...adminWithoutPassword } = admin[0]
 
   res.json({
     success: true,
     data: adminWithoutPassword,
-  });
-});
+  })
+})
+
+// ------------------ UPDATE PROFILE ------------------
 export const updateProfile = asyncHandler(async (req: Request, res: Response) => {
-  const db = database.getDb() // Move this inside the function
+  const db = database.getDb()
   const { username, email } = req.body
 
   await db
@@ -100,7 +112,11 @@ export const updateProfile = asyncHandler(async (req: Request, res: Response) =>
     })
     .where(eq(admins.id, req.admin.id))
 
-  const updatedAdminResult = await db.select().from(admins).where(eq(admins.id, req.admin.id)).limit(1)
+  const updatedAdminResult = await db
+    .select()
+    .from(admins)
+    .where(eq(admins.id, req.admin.id))
+    .limit(1)
 
   const { password, ...adminWithoutPassword } = updatedAdminResult[0]
 

@@ -29,7 +29,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 const allowedOrigins = [
-  "http://localhost:3000",
+      "http://localhost:3000",
       "https://tarteel-app.vercel.app",
       "https://tarteel-app-git-main-0dukepans-projects.vercel.app",
       "https://tarteel-94r30g2np-0dukepans-projects.vercel.app"
